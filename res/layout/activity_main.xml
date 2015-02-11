@@ -15,17 +15,12 @@
         android:text="@string/hello_world" />
 
 
+    <com.longhui.customview.PickerView
+        android:id="@+id/pickerView1"
+        android:layout_width="wrap_content"
+        android:layout_height="200dp" />
 
-
-    <com.longhui.customview.ScrollViewGroup
-        android:id="@+id/scrollViewGroup1"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/textView1" >
-    </com.longhui.customview.ScrollViewGroup>
-    
-        <Button
+    <Button
         android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -35,5 +30,11 @@
         android:layout_marginTop="22dp"
         android:onClick="onClick"
         android:text="Button" />
+
+    <com.longhui.customview.MyView
+        android:id="@+id/myView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

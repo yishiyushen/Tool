@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Scroller;
@@ -12,6 +13,7 @@ import android.widget.Scroller;
 public class ScrollViewGroup extends LinearLayout {
 	
 	private Scroller mScroller;
+	private MyView view;
 
 	public ScrollViewGroup(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -22,12 +24,16 @@ public class ScrollViewGroup extends LinearLayout {
 	private void init(Context context){
 		mScroller = new Scroller(context);
 		setWillNotDraw(false);
+		this.setOrientation(LinearLayout.VERTICAL);
 		//addView(new MyView(context));
 //		Button view = new Button(context);
 //		view.setText("按钮");
-		MyView  view = new MyView(context);
+		  view = new MyView(context);
 		LinearLayout.LayoutParams params = new LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 		addView(view, params);
+		Button  view2 = new Button(context);
+		view2.setText("按钮");
+		addView(view2, params);
 	}
 	
 //	@Override
@@ -58,7 +64,13 @@ public class ScrollViewGroup extends LinearLayout {
 	public void computeScroll() {
 		// TODO Auto-generated method stub
 		if(mScroller.computeScrollOffset()){
+			Log.e("tag", "1scrollx= "+getScrollX());
 			scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
+			Log.e("tag", "2scrollx= "+getScrollX());
+			Log.e("Tag", "getLeft= "+view.getLeft());
+			int[] postion = new int[2];
+			view.getLocationInWindow(postion);
+			Log.e("Tag", "x= "+postion[0]);
 			postInvalidate();
 		}
 		super.computeScroll();

@@ -7,10 +7,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
+import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.WindowManager;
 
 /**
  * 用于设置屏幕风格的工具类
@@ -103,5 +106,12 @@ public class AndroidUtil {
 				| View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 				);
 		
+	}
+	
+	public DisplayMetrics getScreenInfo(Context context){
+		 WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE); 
+		 DisplayMetrics dm = new DisplayMetrics();
+		 wm.getDefaultDisplay().getMetrics(dm);
+		return dm;
 	}
 }

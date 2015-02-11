@@ -1,10 +1,14 @@
 package com.longhui.tool;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
-import com.longhui.customview.ScrollViewGroup;
+import com.longhui.customview.PickerView;
 
 public class MainActivity extends Activity {
 
@@ -12,13 +16,27 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		PickerView pickerView1 = (PickerView)findViewById(R.id.pickerView1);
+		List<String> mData = new ArrayList<String>();
+		mData.add("00");
+		mData.add("01");
+		mData.add("02");
+		mData.add("03");
+		mData.add("04");
+		mData.add("05");
+		mData.add("06");
+		mData.add("07");	
+		mData.add("08");
+		mData.add("09");
+		pickerView1.setData(mData);
 	}
 
 	public void onClick(View view){
 		//Intent intent = new Intent("com.noahedu.reciteword.sync");
 		//this.startActivity(intent);
-		ScrollViewGroup view1 = (ScrollViewGroup)findViewById(R.id.scrollViewGroup1);
-		view1.startMove(0,0,-200,0,4000);
+		//ScrollViewGroup view1 = (ScrollViewGroup)findViewById(R.id.scrollViewGroup1);
+		//view1.startMove(0,0,-200,0,4000);
+
 	}
 	
 //	 private static final String TAG = "TestScrollerActivity";    
@@ -137,4 +155,18 @@ public class MainActivity extends Activity {
 //	      super.dispatchDraw(canvas);    
 //	     }    
 //	    }  
+	
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		Log.e("onPause", " -------- onPause()------------");
+		super.onPause();
+	}
+	
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		Log.e("onResume", " -------- onResume()------------");
+		super.onResume();
+	}
 }
