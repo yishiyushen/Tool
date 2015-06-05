@@ -1,6 +1,5 @@
 package com.longhui.util;
 
-import android.graphics.Bitmap;
 import android.support.v4.util.LruCache;
 /**
  * 内存缓存工具类

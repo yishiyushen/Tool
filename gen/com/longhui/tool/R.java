@@ -104,4 +104,11 @@ public final class R {
          */
         public static final int AppTheme=0x7f070001;
     }
+    public static final class styleable {
+        /** Attributes that can be used with a attrs.
+         */
+        public static final int[] attrs = {
+            
+        };
+    };
 }

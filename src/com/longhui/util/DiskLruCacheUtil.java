@@ -3,6 +3,8 @@ package com.longhui.util;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,7 +14,10 @@ import java.security.NoSuchAlgorithmException;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Environment;
+import android.util.Log;
 /**
  *硬盘缓存
  * @author zhonglh
@@ -34,8 +39,14 @@ public class DiskLruCacheUtil {
 	 * @param uniqueName
 	 *            缓存目录名
 	 */
-	public void open(String uniqueName) {
+	public boolean open(String uniqueName) {
+		if(mDiskCache != null){
+			return true;
+		}
 		File cacheDir = getDiskCacheDir(context, uniqueName);
+		if(cacheDir == null){
+			return false;
+		}
 		if (!cacheDir.exists()) {
 			cacheDir.mkdir();
 		}
@@ -45,7 +56,9 @@ public class DiskLruCacheUtil {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 
 	/**
@@ -68,7 +81,7 @@ public class DiskLruCacheUtil {
 	 * @param key
 	 * @return
 	 */
-	public void writeToDiskCache(String key,InputStream in){
+	public Bitmap writeToDiskCache(String key,InputStream in){
 		OutputStream outputStream = null;
 		if(mDiskCache != null){
 			String md5Key = hashKeyForDisk(key);
@@ -84,16 +97,56 @@ public class DiskLruCacheUtil {
 			}
 			
 		}
+		
+		FileDescriptor fd =readFromDiskCacheRtFileDescriptor(key);
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inSampleSize = 2;
+		Bitmap bitmap = BitmapFactory.decodeFileDescriptor(fd, null, options);
+		return bitmap;
 	}
 
+	/**
+	 * 将数据写入缓存中
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public Bitmap writeToDiskCache(String key,InputStream in,int w,int h){
+		OutputStream outputStream = null;
+		if(mDiskCache != null){
+			String md5Key = hashKeyForDisk(key);
+			try {
+				 DiskLruCache.Editor mEditor = mDiskCache.edit(md5Key);
+				if(mEditor != null){
+					outputStream = mEditor.newOutputStream(0);
+				}
+				saveToDiskCache(in,outputStream, mEditor);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		
+		FileDescriptor fd = readFromDiskCacheRtFileDescriptor(key);
+		if(fd == null){
+			Log.d("writeToDiskCache", "-----fd==null");
+		}
+		Bitmap bitmap = LoadImgUtil.decodeSampledBitmapFromFd(fd, w, h);
+		if(bitmap == null){
+			Log.d("writeToDiskCache", "-----bitmap==null");
+		}
+		return bitmap;
+	}
+	
 	private void saveToDiskCache(InputStream in, OutputStream out,
 			DiskLruCache.Editor editor) {
 		if (in == null || out == null) {
 			return;
 		}
 		boolean bflag = false;
-		BufferedInputStream bufIn = new BufferedInputStream(in);
-		BufferedOutputStream bufOut = new BufferedOutputStream(out);
+		BufferedInputStream bufIn = new BufferedInputStream(in,8*1024);
+		BufferedOutputStream bufOut = new BufferedOutputStream(out,8*1024);
 		int b;
 		try {
 			while ((b = bufIn.read()) != -1) {
@@ -115,7 +168,9 @@ public class DiskLruCacheUtil {
 		try {
 			if (bflag) {
 				editor.commit();
+				Log.d("-----diskcache---", " wirte to disk cache succeed---");
 			} else {
+				Log.d("-----diskcache---", " wirte to disk cache failed---");
 				editor.abort();
 			}
 		} catch (IOException e) {
@@ -149,6 +204,34 @@ public class DiskLruCacheUtil {
 		return inputStream;
 	}
 
+	/**
+	 * 从缓存中读取数据
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public FileDescriptor readFromDiskCacheRtFileDescriptor(String key) {
+		FileInputStream fileInputStream = null;
+		FileDescriptor fileDescriptor = null;
+		 Bitmap bitmap = null;  
+		if (mDiskCache != null) {
+			String md5Key = hashKeyForDisk(key);
+			DiskLruCache.Snapshot snapshot;
+			try {
+				snapshot = mDiskCache.get(md5Key);
+				if (snapshot != null) {
+					fileInputStream = (FileInputStream) snapshot.getInputStream(0);  
+					fileDescriptor = fileInputStream.getFD();  
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		     // 将缓存数据解析成Bitmap对象  
+           
+		}
+		return fileDescriptor;
+	}
 	/**
 	 * 获取缓存数据总的大小
 	 * 
@@ -245,13 +328,19 @@ public class DiskLruCacheUtil {
 	 */
 	public File getDiskCacheDir(Context context, String uniqueName) {
 		String cachePath = null;
+		File file;
 		if (Environment.MEDIA_MOUNTED.equals(Environment
 				.getExternalStorageState())
 				|| !Environment.isExternalStorageRemovable()) {
-			cachePath = context.getExternalCacheDir().getPath();
+			file = context.getExternalCacheDir();
 		} else {
-			cachePath = context.getCacheDir().getPath();
+			file = context.getCacheDir();			
 		}
+		if(file == null){
+			return null;
+		}
+		cachePath = file.getPath();
+		
 
 		return new File(cachePath + File.separator + uniqueName);
 	}

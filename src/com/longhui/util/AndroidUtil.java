@@ -7,7 +7,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
@@ -29,7 +28,7 @@ public class AndroidUtil {
 	 */
 	public static boolean IsConnect(Context ctx) {
 		ConnectivityManager manager = (ConnectivityManager) ctx
-				.getSystemService(ctx.CONNECTIVITY_SERVICE);
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo info = manager
 				.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 		State stata = null;
@@ -40,6 +39,15 @@ public class AndroidUtil {
 		}
 		info = null;
 		info = manager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+		stata = null;
+		if (info != null) {
+			stata = info.getState();
+			if (stata == State.CONNECTED) {
+				return true;
+			}
+		}
+		info = null;
+		info = manager.getNetworkInfo(ConnectivityManager.TYPE_ETHERNET);
 		stata = null;
 		if (info != null) {
 			stata = info.getState();
@@ -108,7 +116,22 @@ public class AndroidUtil {
 		
 	}
 	
-	public DisplayMetrics getScreenInfo(Context context){
+	public static void setFullScreen2(Activity activity){
+		
+		View view = activity.getWindow().getDecorView();
+		//view.setSystemUiVisibility(8);
+		view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+				| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+				| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+				// | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+				| View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+				| View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+		// | View.SYSTEM_UI_FLAG_IMMERSIVE
+		);
+		
+	}
+	
+	public static DisplayMetrics getScreenInfo(Context context){
 		 WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE); 
 		 DisplayMetrics dm = new DisplayMetrics();
 		 wm.getDefaultDisplay().getMetrics(dm);
